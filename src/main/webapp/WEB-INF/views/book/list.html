@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<th:block th:if="${message}">
+    <p th:text="${message}"></p>
+</th:block>
+<p>
+    <a href="/create-book">Create new book</a>
+</p>
+<p>
+    <a href="/return-book-form">Return a book</a>
+</p>
+<h1>Blogs</h1>
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Borrow</th>
+    </tr>
+    <th:block th:each="book : ${books}">
+        <tr>
+            <td th:text="${book.name}"></td>
+            <td th:text="${book.amount}"></td>
+            <td><a th:href="@{/borrow-book/__${book.id}__ }">Borrow</a></td>
+        </tr>
+    </th:block>
+</table>
+<div>
+    <a th:href="@{'/books'(page=${books.number - 1})}" th:if="${books.hasPrevious()}">Previous</a>
+    <span th:text="${books.number + 1}"></span>/<span th:text="${books.totalPages}"></span>
+    <a th:href="@{'/books'(page=${books.number + 1})}" th:if="${books.hasNext()}">Next</a>
+</div>
+</body>
+</html>
