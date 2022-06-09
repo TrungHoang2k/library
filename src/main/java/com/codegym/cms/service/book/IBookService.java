@@ -1,5 +1,6 @@
 package com.codegym.cms.service.book;
 
+import com.codegym.cms.exception.BookAmountIsZero;
 import com.codegym.cms.model.Book;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +14,9 @@ public interface IBookService {
     Optional<Book> findByBookName(String bookName);
     void save(Book t);
 
-    void out(Book t) throws Exception;
+    void bringOut(Book t) throws BookAmountIsZero;
 
-    void in(Book t);
+    void bringIn(Book t);
 
     void remove(Long id);
 }

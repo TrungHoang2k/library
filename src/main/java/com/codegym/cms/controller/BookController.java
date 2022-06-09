@@ -1,5 +1,6 @@
 package com.codegym.cms.controller;
 
+import com.codegym.cms.exception.BookAmountIsZero;
 import com.codegym.cms.model.Book;
 import com.codegym.cms.model.Form;
 import com.codegym.cms.service.book.IBookService;
@@ -52,22 +53,17 @@ public class BookController {
         return modelAndView;
     }
 
-    @GetMapping ("/update-book-out/{id}")
-    public ModelAndView updateBookOut(@PathVariable Long id, Pageable pageable){
-        try {
-            ModelAndView modelAndView = new ModelAndView("/book/list");
-            Book book = bookService.findById(id).get();
-            bookService.out(book);
-            Form form = formService.createNewForm(book.getName());
-            formService.save(form);
-            Page<Book> books = bookService.findAll(pageable);
-            modelAndView.addObject("books", books);
-            modelAndView.addObject("message", "Borrow successfully with code: " + form.getCode());
-            return modelAndView;
-        } catch (Exception e) {
-            return new ModelAndView("/book/error.404");
-        }
-
+    @GetMapping("/update-book-out/{id}")
+    public ModelAndView updateBookOut(@PathVariable Long id, Pageable pageable) throws BookAmountIsZero {
+        ModelAndView modelAndView = new ModelAndView("/book/list");
+        Book book = bookService.findById(id).get();
+        bookService.bringOut(book);
+        Form form = formService.createNewForm(book.getName());
+        formService.save(form);
+        Page<Book> books = bookService.findAll(pageable);
+        modelAndView.addObject("books", books);
+        modelAndView.addObject("message", "Borrow successfully with code: " + form.getCode());
+        return modelAndView;
     }
 
     @GetMapping("/return-book-form")
@@ -78,16 +74,17 @@ public class BookController {
 
     @GetMapping("/return-book")
     public ModelAndView showReturnInfo(@RequestParam("code") int code) {
-        try {
-            ModelAndView modelAndView = new ModelAndView("/book/return");
-            Form form = formService.findByCode(code);
-            Book book = bookService.findByBookName(form.getBookName()).get();
-            bookService.in(book);
-            formService.remove(form.getId());
-            modelAndView.addObject("book", book);
-            return modelAndView;
-        } catch (Exception e) {
-            return new ModelAndView("/book/error.404");
-        }
+        ModelAndView modelAndView = new ModelAndView("/book/return");
+        Form form = formService.findByCode(code);
+        Book book = bookService.findByBookName(form.getBookName()).get();
+        bookService.bringIn(book);
+        formService.remove(form.getId());
+        modelAndView.addObject("book", book);
+        return modelAndView;
+    }
+
+    @ExceptionHandler({BookAmountIsZero.class, NullPointerException.class})
+    public ModelAndView showError() {
+        return new ModelAndView("/book/error.404");
     }
 }

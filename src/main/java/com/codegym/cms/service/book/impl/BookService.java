@@ -1,5 +1,6 @@
 package com.codegym.cms.service.book.impl;
 
+import com.codegym.cms.exception.BookAmountIsZero;
 import com.codegym.cms.model.Book;
 import com.codegym.cms.repository.IBookRepository;
 import com.codegym.cms.service.book.IBookService;
@@ -36,10 +37,10 @@ public class BookService implements IBookService {
     }
 
     @Override
-    public void out(Book t) throws Exception {
+    public void bringOut(Book t) throws BookAmountIsZero {
         Long amount = t.getAmount();
         if (amount == 0){
-            throw new Exception("0 book left");
+            throw new BookAmountIsZero();
         } else {
             t.setAmount(amount-1);
             bookRepository.save(t);
@@ -47,7 +48,7 @@ public class BookService implements IBookService {
     }
 
     @Override
-    public void in(Book t) {
+    public void bringIn(Book t) {
         t.setAmount(t.getAmount()+1);
         bookRepository.save(t);
     }
